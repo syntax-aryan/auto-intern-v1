@@ -128,7 +128,7 @@ export default function OnboardingPage() {
                     <Button
                       key={option}
                       variant={isSelected ? "default" : "outline"}
-                      className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-gray-200 hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
                       disabled={!canSelect}
                       onClick={() => {
                         if (isSelected) {
@@ -183,7 +183,7 @@ export default function OnboardingPage() {
                   <Button
                     key={option}
                     variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-gray-200 hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
                     disabled={!canSelect}
                     onClick={() => {
                       if (isSelected) {
@@ -234,7 +234,7 @@ export default function OnboardingPage() {
                   <Button
                     key={option}
                     variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-gray-200 hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
                     disabled={!canSelect}
                     onClick={() => {
                       if (isSelected) {
@@ -295,7 +295,7 @@ export default function OnboardingPage() {
                   <Button
                     key={value}
                     variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start text-left ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`w-full justify-start text-left ${isSelected ? "bg-white text-black" : "border-gray-600 text-gray-200 hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
                     disabled={!canSelect}
                     onClick={() => {
                       if (isSelected) {
@@ -336,7 +336,7 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <Button
                   variant={data.dataType === "resume" ? "default" : "outline"}
-                  className={`w-full justify-start ${data.dataType === "resume" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
+                  className={`w-full justify-start ${data.dataType === "resume" ? "bg-white text-black" : "border-gray-600 text-gray-200 hover:bg-gray-800"}`}
                   onClick={() => setData({ ...data, dataType: "resume" })}
                 >
                   <FileText className="mr-2 w-4 h-4" />
@@ -345,7 +345,7 @@ export default function OnboardingPage() {
 
                 <Button
                   variant={data.dataType === "linkedin" ? "default" : "outline"}
-                  className={`w-full justify-start ${data.dataType === "linkedin" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
+                  className={`w-full justify-start ${data.dataType === "linkedin" ? "bg-white text-black" : "border-gray-600 text-gray-200 hover:bg-gray-800"}`}
                   onClick={() => setData({ ...data, dataType: "linkedin" })}
                 >
                   <Linkedin className="mr-2 w-4 h-4" />
@@ -470,7 +470,7 @@ export default function OnboardingPage() {
             onClick={handleBack}
             disabled={step === 1}
             variant="outline"
-            className="border-gray-600 text-white hover:bg-gray-800"
+            className="border-gray-600 text-gray-200 hover:bg-gray-800"
           >
             <ArrowLeft className="mr-2 w-4 h-4" />
             Back
