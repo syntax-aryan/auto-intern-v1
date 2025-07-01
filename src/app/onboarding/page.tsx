@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -66,7 +65,6 @@ export default function OnboardingPage() {
     setIsLoading(true);
     try {
       let resumeText = "";
-
       if (data.dataType === "resume" && data.resumeFile) {
         resumeText = await data.resumeFile.text();
       } else if (data.dataType === "linkedin" && data.linkedinUrl) {
@@ -123,12 +121,11 @@ export default function OnboardingPage() {
                 (option) => {
                   const isSelected = data.goal.includes(option);
                   const canSelect = data.goal.length < 3 || isSelected;
-
                   return (
                     <Button
                       key={option}
                       variant={isSelected ? "default" : "outline"}
-                      className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
                       disabled={!canSelect}
                       onClick={() => {
                         if (isSelected) {
@@ -153,7 +150,6 @@ export default function OnboardingPage() {
             </CardContent>
           </Card>
         );
-
       case 2:
         return (
           <Card className="w-full max-w-md bg-gray-900 border-gray-800 text-white">
@@ -178,12 +174,11 @@ export default function OnboardingPage() {
               ].map((option) => {
                 const isSelected = data.careerPath.includes(option);
                 const canSelect = data.careerPath.length < 3 || isSelected;
-
                 return (
                   <Button
                     key={option}
                     variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
                     disabled={!canSelect}
                     onClick={() => {
                       if (isSelected) {
@@ -212,7 +207,6 @@ export default function OnboardingPage() {
             </CardContent>
           </Card>
         );
-
       case 3:
         return (
           <Card className="w-full max-w-md bg-gray-900 border-gray-800 text-white">
@@ -229,12 +223,11 @@ export default function OnboardingPage() {
               {["Beginner", "Intermediate", "Expert"].map((option) => {
                 const isSelected = data.experience.includes(option);
                 const canSelect = data.experience.length < 3 || isSelected;
-
                 return (
                   <Button
                     key={option}
                     variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
                     disabled={!canSelect}
                     onClick={() => {
                       if (isSelected) {
@@ -263,7 +256,6 @@ export default function OnboardingPage() {
             </CardContent>
           </Card>
         );
-
       case 4:
         return (
           <Card className="w-full max-w-md bg-gray-900 border-gray-800 text-white">
@@ -290,12 +282,11 @@ export default function OnboardingPage() {
               ].map(({ value, label }) => {
                 const isSelected = data.companies.includes(value);
                 const canSelect = data.companies.length < 3 || isSelected;
-
                 return (
                   <Button
                     key={value}
                     variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start text-left ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`w-full justify-start text-left ${isSelected ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
                     disabled={!canSelect}
                     onClick={() => {
                       if (isSelected) {
@@ -322,7 +313,6 @@ export default function OnboardingPage() {
             </CardContent>
           </Card>
         );
-
       case 5:
         return (
           <Card className="w-full max-w-md bg-gray-900 border-gray-800 text-white">
@@ -336,23 +326,21 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <Button
                   variant={data.dataType === "resume" ? "default" : "outline"}
-                  className={`w-full justify-start ${data.dataType === "resume" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
+                  className={`w-full justify-start ${data.dataType === "resume" ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"}`}
                   onClick={() => setData({ ...data, dataType: "resume" })}
                 >
                   <FileText className="mr-2 w-4 h-4" />
                   Upload Resume
                 </Button>
-
                 <Button
                   variant={data.dataType === "linkedin" ? "default" : "outline"}
-                  className={`w-full justify-start ${data.dataType === "linkedin" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
+                  className={`w-full justify-start ${data.dataType === "linkedin" ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"}`}
                   onClick={() => setData({ ...data, dataType: "linkedin" })}
                 >
                   <Linkedin className="mr-2 w-4 h-4" />
                   LinkedIn Profile URL
                 </Button>
               </div>
-
               {data.dataType === "resume" && (
                 <div className="mt-4">
                   <Label htmlFor="resumeFile" className="text-white">
@@ -375,7 +363,6 @@ export default function OnboardingPage() {
                   )}
                 </div>
               )}
-
               {data.dataType === "linkedin" && (
                 <div className="mt-4">
                   <Label htmlFor="linkedinUrl" className="text-white">
@@ -396,7 +383,6 @@ export default function OnboardingPage() {
             </CardContent>
           </Card>
         );
-
       case 6:
         return (
           <Card className="w-full max-w-2xl bg-gray-900 border-gray-800 text-white">
@@ -436,7 +422,6 @@ export default function OnboardingPage() {
             </CardContent>
           </Card>
         );
-
       default:
         return null;
     }
@@ -470,12 +455,11 @@ export default function OnboardingPage() {
             onClick={handleBack}
             disabled={step === 1}
             variant="outline"
-            className="border-gray-600 text-white hover:bg-gray-800"
+             className="border-gray-600 text-black hover:bg-gray-800"
           >
             <ArrowLeft className="mr-2 w-4 h-4" />
             Back
           </Button>
-
           {step < 5 && (
             <Button
               onClick={handleNext}
@@ -499,7 +483,6 @@ export default function OnboardingPage() {
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           )}
-
           {step === 5 && (
             <Button
               onClick={handleGenerateEmail}
