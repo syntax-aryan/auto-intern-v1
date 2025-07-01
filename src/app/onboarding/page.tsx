@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -31,27 +29,30 @@ import {
 import { createClient } from "../../../supabase/client";
 
 interface OnboardingData {
-  goal: string;
-  careerPath: string;
-  experience: string;
-  companies: string;
-  resumeData: string;
+  goal: string[];
+  careerPath: string[];
+  experience: string[];
+  companies: string[];
+  resumeFile: File | null;
+  linkedinUrl: string;
   dataType: "resume" | "linkedin" | "";
 }
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
-    goal: "",
-    careerPath: "",
-    experience: "",
-    companies: "",
-    resumeData: "",
+    goal: [],
+    careerPath: [],
+    experience: [],
+    companies: [],
+    resumeFile: null,
+    linkedinUrl: "",
     dataType: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [generatedEmail, setGeneratedEmail] = useState("");
   const router = useRouter();
+  const supabase = createClient();
 
   const handleNext = () => {
     if (step < 6) setStep(step + 1);
@@ -64,12 +65,29 @@ export default function OnboardingPage() {
   const handleGenerateEmail = async () => {
     setIsLoading(true);
     try {
+      let resumeText = "";
+
+      if (data.dataType === "resume" && data.resumeFile) {
+        resumeText = await data.resumeFile.text();
+      } else if (data.dataType === "linkedin" && data.linkedinUrl) {
+        resumeText = data.linkedinUrl;
+      }
+
+      const requestData = {
+        goal: data.goal.join(", "),
+        careerPath: data.careerPath.join(", "),
+        experience: data.experience.join(", "),
+        companies: data.companies.join(", "),
+        resumeData: resumeText,
+        dataType: data.dataType,
+      };
+
       const response = await fetch("/api/generate-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(requestData),
       });
 
       const result = await response.json();
@@ -98,17 +116,40 @@ export default function OnboardingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="text-sm text-gray-400 mb-2">
+                Select up to 3 options
+              </div>
               {["Internships", "Jobs", "Research", "Referrals"].map(
-                (option) => (
-                  <Button
-                    key={option}
-                    className={`w-full justify-start ${data.goal === option ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800 bg-transparent"}`}
-                    onClick={() => setData({ ...data, goal: option })}
-                  >
-                    {option}
-                  </Button>
-                ),
+                (option) => {
+                  const isSelected = data.goal.includes(option);
+                  const canSelect = data.goal.length < 3 || isSelected;
+
+                  return (
+                    <Button
+                      key={option}
+                      variant={isSelected ? "default" : "outline"}
+                      className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                      disabled={!canSelect}
+                      onClick={() => {
+                        if (isSelected) {
+                          setData({
+                            ...data,
+                            goal: data.goal.filter((g) => g !== option),
+                          });
+                        } else if (data.goal.length < 3) {
+                          setData({ ...data, goal: [...data.goal, option] });
+                        }
+                      }}
+                    >
+                      {option}
+                      {isSelected && <span className="ml-2">✓</span>}
+                    </Button>
+                  );
+                },
               )}
+              <div className="text-xs text-gray-500">
+                Selected: {data.goal.length}/3
+              </div>
             </CardContent>
           </Card>
         );
@@ -122,26 +163,52 @@ export default function OnboardingPage() {
                 Choose your field of interest
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Select
-                value={data.careerPath}
-                onValueChange={(value) =>
-                  setData({ ...data, careerPath: value })
-                }
-              >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                  <SelectValue placeholder="Select career path" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="Tech">Technology</SelectItem>
-                  <SelectItem value="Finance">Finance</SelectItem>
-                  <SelectItem value="Law">Law</SelectItem>
-                  <SelectItem value="Healthcare">Healthcare</SelectItem>
-                  <SelectItem value="Marketing">Marketing</SelectItem>
-                  <SelectItem value="Consulting">Consulting</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+            <CardContent className="space-y-4">
+              <div className="text-sm text-gray-400 mb-2">
+                Select up to 3 career paths
+              </div>
+              {[
+                "Technology",
+                "Finance",
+                "Law",
+                "Healthcare",
+                "Marketing",
+                "Consulting",
+                "Other",
+              ].map((option) => {
+                const isSelected = data.careerPath.includes(option);
+                const canSelect = data.careerPath.length < 3 || isSelected;
+
+                return (
+                  <Button
+                    key={option}
+                    variant={isSelected ? "default" : "outline"}
+                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    disabled={!canSelect}
+                    onClick={() => {
+                      if (isSelected) {
+                        setData({
+                          ...data,
+                          careerPath: data.careerPath.filter(
+                            (c) => c !== option,
+                          ),
+                        });
+                      } else if (data.careerPath.length < 3) {
+                        setData({
+                          ...data,
+                          careerPath: [...data.careerPath, option],
+                        });
+                      }
+                    }}
+                  >
+                    {option}
+                    {isSelected && <span className="ml-2">✓</span>}
+                  </Button>
+                );
+              })}
+              <div className="text-xs text-gray-500">
+                Selected: {data.careerPath.length}/3
+              </div>
             </CardContent>
           </Card>
         );
@@ -156,15 +223,43 @@ export default function OnboardingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {["Beginner", "Intermediate", "Expert"].map((option) => (
-                <Button
-                  key={option}
-                  className={`w-full justify-start ${data.experience === option ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800 bg-transparent"}`}
-                  onClick={() => setData({ ...data, experience: option })}
-                >
-                  {option}
-                </Button>
-              ))}
+              <div className="text-sm text-gray-400 mb-2">
+                Select up to 3 experience levels
+              </div>
+              {["Beginner", "Intermediate", "Expert"].map((option) => {
+                const isSelected = data.experience.includes(option);
+                const canSelect = data.experience.length < 3 || isSelected;
+
+                return (
+                  <Button
+                    key={option}
+                    variant={isSelected ? "default" : "outline"}
+                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    disabled={!canSelect}
+                    onClick={() => {
+                      if (isSelected) {
+                        setData({
+                          ...data,
+                          experience: data.experience.filter(
+                            (e) => e !== option,
+                          ),
+                        });
+                      } else if (data.experience.length < 3) {
+                        setData({
+                          ...data,
+                          experience: [...data.experience, option],
+                        });
+                      }
+                    }}
+                  >
+                    {option}
+                    {isSelected && <span className="ml-2">✓</span>}
+                  </Button>
+                );
+              })}
+              <div className="text-xs text-gray-500">
+                Selected: {data.experience.length}/3
+              </div>
             </CardContent>
           </Card>
         );
@@ -178,33 +273,52 @@ export default function OnboardingPage() {
                 Which companies interest you?
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Select
-                value={data.companies}
-                onValueChange={(value) =>
-                  setData({ ...data, companies: value })
-                }
-              >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                  <SelectValue placeholder="Select company type" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="FAANG">
-                    FAANG (Meta, Apple, Amazon, Netflix, Google)
-                  </SelectItem>
-                  <SelectItem value="Investment Banking">
-                    Investment Banking
-                  </SelectItem>
-                  <SelectItem value="Consulting">
-                    Top Consulting Firms
-                  </SelectItem>
-                  <SelectItem value="Startups">High-Growth Startups</SelectItem>
-                  <SelectItem value="Fortune 500">
-                    Fortune 500 Companies
-                  </SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+            <CardContent className="space-y-4">
+              <div className="text-sm text-gray-400 mb-2">
+                Select up to 3 company types
+              </div>
+              {[
+                {
+                  value: "FAANG",
+                  label: "FAANG (Meta, Apple, Amazon, Netflix, Google)",
+                },
+                { value: "Investment Banking", label: "Investment Banking" },
+                { value: "Consulting", label: "Top Consulting Firms" },
+                { value: "Startups", label: "High-Growth Startups" },
+                { value: "Fortune 500", label: "Fortune 500 Companies" },
+                { value: "Other", label: "Other" },
+              ].map(({ value, label }) => {
+                const isSelected = data.companies.includes(value);
+                const canSelect = data.companies.length < 3 || isSelected;
+
+                return (
+                  <Button
+                    key={value}
+                    variant={isSelected ? "default" : "outline"}
+                    className={`w-full justify-start text-left ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    disabled={!canSelect}
+                    onClick={() => {
+                      if (isSelected) {
+                        setData({
+                          ...data,
+                          companies: data.companies.filter((c) => c !== value),
+                        });
+                      } else if (data.companies.length < 3) {
+                        setData({
+                          ...data,
+                          companies: [...data.companies, value],
+                        });
+                      }
+                    }}
+                  >
+                    <span className="truncate">{label}</span>
+                    {isSelected && <span className="ml-2">✓</span>}
+                  </Button>
+                );
+              })}
+              <div className="text-xs text-gray-500">
+                Selected: {data.companies.length}/3
+              </div>
             </CardContent>
           </Card>
         );
@@ -221,7 +335,8 @@ export default function OnboardingPage() {
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <Button
-                  className={`w-full justify-start ${data.dataType === "resume" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800 bg-transparent"}`}
+                  variant={data.dataType === "resume" ? "default" : "outline"}
+                  className={`w-full justify-start ${data.dataType === "resume" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
                   onClick={() => setData({ ...data, dataType: "resume" })}
                 >
                   <FileText className="mr-2 w-4 h-4" />
@@ -229,7 +344,8 @@ export default function OnboardingPage() {
                 </Button>
 
                 <Button
-                  className={`w-full justify-start ${data.dataType === "linkedin" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800 bg-transparent"}`}
+                  variant={data.dataType === "linkedin" ? "default" : "outline"}
+                  className={`w-full justify-start ${data.dataType === "linkedin" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
                   onClick={() => setData({ ...data, dataType: "linkedin" })}
                 >
                   <Linkedin className="mr-2 w-4 h-4" />
@@ -237,24 +353,42 @@ export default function OnboardingPage() {
                 </Button>
               </div>
 
-              {data.dataType && (
+              {data.dataType === "resume" && (
                 <div className="mt-4">
-                  <Label htmlFor="profileData" className="text-white">
-                    {data.dataType === "resume"
-                      ? "Paste resume text"
-                      : "LinkedIn profile URL"}
+                  <Label htmlFor="resumeFile" className="text-white">
+                    Upload Resume File
                   </Label>
-                  <textarea
-                    id="profileData"
-                    className="w-full mt-2 p-3 bg-gray-800 border border-gray-700 rounded-md text-white min-h-[120px]"
-                    placeholder={
-                      data.dataType === "resume"
-                        ? "Paste your resume content here..."
-                        : "https://linkedin.com/in/yourprofile"
-                    }
-                    value={data.resumeData}
+                  <input
+                    id="resumeFile"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt"
+                    className="w-full mt-2 p-3 bg-gray-800 border border-gray-700 rounded-md text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setData({ ...data, resumeFile: file });
+                    }}
+                  />
+                  {data.resumeFile && (
+                    <div className="mt-2 text-sm text-gray-400">
+                      Selected: {data.resumeFile.name}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {data.dataType === "linkedin" && (
+                <div className="mt-4">
+                  <Label htmlFor="linkedinUrl" className="text-white">
+                    LinkedIn Profile URL
+                  </Label>
+                  <Input
+                    id="linkedinUrl"
+                    type="url"
+                    className="w-full mt-2 bg-gray-800 border-gray-700 text-white"
+                    placeholder="https://linkedin.com/in/yourprofile"
+                    value={data.linkedinUrl}
                     onChange={(e) =>
-                      setData({ ...data, resumeData: e.target.value })
+                      setData({ ...data, linkedinUrl: e.target.value })
                     }
                   />
                 </div>
@@ -335,7 +469,8 @@ export default function OnboardingPage() {
           <Button
             onClick={handleBack}
             disabled={step === 1}
-            className="border-gray-600 text-white hover:bg-gray-800 bg-transparent"
+            variant="outline"
+            className="border-gray-600 text-white hover:bg-gray-800"
           >
             <ArrowLeft className="mr-2 w-4 h-4" />
             Back
@@ -344,9 +479,20 @@ export default function OnboardingPage() {
           {step < 5 && (
             <Button
               onClick={handleNext}
-              disabled={
-                !data[Object.keys(data)[step - 1] as keyof OnboardingData]
-              }
+              disabled={(() => {
+                switch (step) {
+                  case 1:
+                    return data.goal.length === 0;
+                  case 2:
+                    return data.careerPath.length === 0;
+                  case 3:
+                    return data.experience.length === 0;
+                  case 4:
+                    return data.companies.length === 0;
+                  default:
+                    return false;
+                }
+              })()}
               className="bg-white text-black hover:bg-gray-200"
             >
               Next
@@ -357,7 +503,12 @@ export default function OnboardingPage() {
           {step === 5 && (
             <Button
               onClick={handleGenerateEmail}
-              disabled={!data.resumeData || isLoading}
+              disabled={(() => {
+                if (isLoading) return true;
+                if (data.dataType === "resume") return !data.resumeFile;
+                if (data.dataType === "linkedin") return !data.linkedinUrl;
+                return !data.dataType;
+              })()}
               className="bg-white text-black hover:bg-gray-200"
             >
               {isLoading ? "Generating..." : "Generate Email"}
