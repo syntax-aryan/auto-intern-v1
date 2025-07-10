@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { signUpAction } from "@/app/actions";
 import Navbar from "@/components/navbar";
+import { SmtpMessage } from "../smtp-message";
 
 export default async function Signup(props: {
   searchParams: Promise<Message>;
@@ -102,6 +103,7 @@ export default async function Signup(props: {
             </SubmitButton>
 
             <FormMessage message={searchParams} />
+            <SmtpMessage />
           </form>
         </div>
       </div>
