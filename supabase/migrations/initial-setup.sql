@@ -66,69 +66,61 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.webhook_events ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies if they exist
-DROP POLICY IF EXISTS "Users can view own data" ON public.users;
-DROP POLICY IF EXISTS "Users can insert own data" ON public.users;
-DROP POLICY IF EXISTS "Users can update own data" ON public.users;
-DROP POLICY IF EXISTS "Users can view own subscriptions" ON public.subscriptions;
-DROP POLICY IF EXISTS "Users can insert own subscriptions" ON public.subscriptions;
+-- Create policies if they don't exist
+DO $$
+BEGIN
+    -- Check if the policy for users exists
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'public' 
+        AND tablename = 'users' 
+        AND policyname = 'Users can view own data'
+    ) THEN
+        -- Create policy to allow users to see only their own data
+        EXECUTE 'CREATE POLICY "Users can view own data" ON public.users
+                FOR SELECT USING (auth.uid()::text = user_id)';
+    END IF;
 
--- Create comprehensive policies for users table
-CREATE POLICY "Users can view own data" ON public.users
-    FOR SELECT USING (auth.uid()::text = user_id);
-
-CREATE POLICY "Users can insert own data" ON public.users
-    FOR INSERT WITH CHECK (auth.uid()::text = user_id);
-
-CREATE POLICY "Users can update own data" ON public.users
-    FOR UPDATE USING (auth.uid()::text = user_id);
-
--- Create policies for subscriptions table
-CREATE POLICY "Users can view own subscriptions" ON public.subscriptions
-    FOR SELECT USING (auth.uid()::text = user_id);
-
-CREATE POLICY "Users can insert own subscriptions" ON public.subscriptions
-    FOR INSERT WITH CHECK (auth.uid()::text = user_id);
-
--- Ensure the trigger function has proper permissions
-GRANT USAGE ON SCHEMA public TO authenticated;
-GRANT ALL ON public.users TO authenticated;
-GRANT ALL ON public.subscriptions TO authenticated;
+    -- Check if the policy for subscriptions exists
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'public' 
+        AND tablename = 'subscriptions' 
+        AND policyname = 'Users can view own subscriptions'
+    ) THEN
+        -- Create policy for subscriptions
+        EXECUTE 'CREATE POLICY "Users can view own subscriptions" ON public.subscriptions
+                FOR SELECT USING (auth.uid()::text = user_id)';
+    END IF;
+END
+$$;
 
 -- Create a function that will be triggered when a new user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- Check if user already exists to avoid duplicates
-  IF NOT EXISTS (SELECT 1 FROM public.users WHERE user_id = NEW.id::text) THEN
-    INSERT INTO public.users (
-      id,
-      user_id,
-      email,
-      name,
-      full_name,
-      avatar_url,
-      token_identifier,
-      created_at,
-      updated_at
-    ) VALUES (
-      NEW.id,
-      NEW.id::text,
-      NEW.email,
-      COALESCE(NEW.raw_user_meta_data->>'name', ''),
-      COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-      COALESCE(NEW.raw_user_meta_data->>'avatar_url', ''),
-      COALESCE(NEW.email, NEW.id::text),
-      NEW.created_at,
-      NEW.updated_at
-    );
-  END IF;
+  INSERT INTO public.users (
+    id,
+    user_id,
+    email,
+    name,
+    full_name,
+    avatar_url,
+    token_identifier,
+    created_at,
+    updated_at
+  ) VALUES (
+    NEW.id,
+    NEW.id::text,
+    NEW.email,
+    NEW.raw_user_meta_data->>'name',
+    NEW.raw_user_meta_data->>'full_name',
+    NEW.raw_user_meta_data->>'avatar_url',
+    NEW.email,
+    NEW.created_at,
+    NEW.updated_at
+  );
   RETURN NEW;
-EXCEPTION
-  WHEN OTHERS THEN
-    -- Log the error but don't fail the signup
-    RAISE WARNING 'Error creating user profile: %', SQLERRM;
-    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -145,17 +137,12 @@ BEGIN
   UPDATE public.users
   SET
     email = NEW.email,
-    name = COALESCE(NEW.raw_user_meta_data->>'name', name),
-    full_name = COALESCE(NEW.raw_user_meta_data->>'full_name', full_name),
-    avatar_url = COALESCE(NEW.raw_user_meta_data->>'avatar_url', avatar_url),
+    name = NEW.raw_user_meta_data->>'name',
+    full_name = NEW.raw_user_meta_data->>'full_name',
+    avatar_url = NEW.raw_user_meta_data->>'avatar_url',
     updated_at = NEW.updated_at
   WHERE user_id = NEW.id::text;
   RETURN NEW;
-EXCEPTION
-  WHEN OTHERS THEN
-    -- Log the error but don't fail the update
-    RAISE WARNING 'Error updating user profile: %', SQLERRM;
-    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
