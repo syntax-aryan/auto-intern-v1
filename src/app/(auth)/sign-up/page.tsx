@@ -103,7 +103,7 @@ export default async function Signup(props: {
             </SubmitButton>
 
             <FormMessage message={searchParams} />
-            <SmtpMessage />
+            
           </form>
         </div>
       </div>
