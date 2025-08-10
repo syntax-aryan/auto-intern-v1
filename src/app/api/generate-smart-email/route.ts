@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
             }),
           },
         );
-
+        
         if (!response.ok) {
           throw new Error(`OpenAI API error: ${response.statusText}`);
         }

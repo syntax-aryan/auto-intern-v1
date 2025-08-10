@@ -722,10 +722,12 @@ export default function Dashboard() {
                   </Button>
                 </Link>
 
-                <Button className="w-full bg-gray-800 text-white hover:bg-gray-700 justify-start">
-                  <FileText className="mr-2 w-4 h-4" />
-                  Resume Builder
-                </Button>
+                <Link href="/resume-builder">
+                  <Button className="w-full bg-gray-800 text-white hover:bg-gray-700 justify-start">
+                    <FileText className="mr-2 w-4 h-4" />
+                    Resume Builder
+                  </Button>
+                </Link>
 
                 <Button className="w-full bg-gray-800 text-white hover:bg-gray-700 justify-start">
                   <BarChart3 className="mr-2 w-4 h-4" />
