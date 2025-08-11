@@ -7,47 +7,40 @@ import Aurora from "@/components/Aurora";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      <div className="relative">
-        {/* Aurora as background */}
-        <div className="absolute inset-0 -z-10">
-          <Aurora
-            colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
-            blend={0.5}
-            amplitude={1.0}
-            speed={0.5}
-          />
-        </div>
-
-        {/* Navbar */}
-        <div className="relative z-10">
+    <div className="min-h-screen bg-black text-white">
+      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px]">
+        <Aurora
+          colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
+          blend={0.5}
+          amplitude={1.0}
+          speed={0.5}
+        />
+        <div className="absolute inset-0 z-10">
           <Navbar />
         </div>
-
-        {/* Hero Section */}
-        <section className="pt-16 pb-20"> {/* Reduced padding */}
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-6xl font-bold mb-6 tracking-tight">
-              Land Your Dream
-              <span className="block text-gray-400">Internship</span>
-            </h1>
-            <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-              Automate your cold email outreach to recruiters with AI-powered
-              personalization
-            </p>
-            <Link href="/sign-up">
-              <Button
-                size="lg"
-                className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-4"
-              >
-                Get Started
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-          </div>
-        </section>
       </div>
-
+      {/* Hero Section */}
+      <section className="pt-32 pb-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-6xl font-bold mb-6 tracking-tight">
+            Land Your Dream
+            <span className="block text-gray-400">Internship</span>
+          </h1>
+          <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
+            Automate your cold email outreach to recruiters with AI-powered
+            personalization
+          </p>
+          <Link href="/sign-up">
+            <Button
+              size="lg"
+              className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-4"
+            >
+              Get Started
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+          </Link>
+        </div>
+      </section>
       {/* How It Works Section */}
       <section className="py-20 border-t border-gray-800">
         <div className="container mx-auto px-4">
@@ -109,7 +102,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Features Section */}
       <section className="py-20 border-t border-gray-800 bg-gray-900">
         <div className="container mx-auto px-4">
@@ -165,7 +157,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="py-20 border-t border-gray-800">
         <div className="container mx-auto px-4 text-center">
@@ -196,7 +187,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       <Footer />
     </div>
   );
