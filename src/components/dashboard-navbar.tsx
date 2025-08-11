@@ -48,6 +48,7 @@ export default function DashboardNavbar() {
                 onClick={async () => {
                   await supabase.auth.signOut();
                   router.push("/");
+                  window.location.reload();
                 }}
                 className="text-white hover:bg-gray-800"
               >
