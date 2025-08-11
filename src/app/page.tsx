@@ -3,11 +3,22 @@ import Footer from "@/components/footer";
 import { ArrowRight, Target, Mail, BarChart3, FileText } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Aurora from "@/components/Aurora";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navbar />
+      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px]">
+        <Aurora
+          colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
+          blend={0.5}
+          amplitude={1.0}
+          speed={0.5}
+        />
+        <div className="absolute inset-0 z-10">
+          <Navbar />
+        </div>
+      </div>
       {/* Hero Section */}
       <section className="pt-32 pb-20">
         <div className="container mx-auto px-4 text-center">
