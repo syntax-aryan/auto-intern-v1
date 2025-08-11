@@ -4,8 +4,14 @@ import { ArrowRight, Target, Mail, BarChart3, FileText } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Aurora from "@/components/Aurora";
+import { createClient } from "@/../supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const getStartedLink = user ? "/dashboard" : "/sign-up";
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px]">
@@ -30,7 +36,7 @@ export default function Home() {
             Automate your cold email outreach to recruiters with AI-powered
             personalization
           </p>
-          <Link href="/sign-up">
+          <Link href={getStartedLink}>
             <Button
               size="lg"
               className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-4"
@@ -168,7 +174,7 @@ export default function Home() {
             companies
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/sign-up">
+            <Link href={getStartedLink}>
               <Button
                 size="lg"
                 className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-4"
