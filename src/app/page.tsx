@@ -20,7 +20,7 @@ export default function Home() {
         </div>
       </div>
       {/* Hero Section */}
-      <section className="pt-8 pb-16 -mt-16 md:-mt-24">
+      <section className="pt-8 pb-16 -mt-20 md:-mt-28">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-6xl font-bold mb-6 tracking-tight">
             Land Your Dream
