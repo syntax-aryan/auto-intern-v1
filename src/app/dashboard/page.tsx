@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import DashboardNavbar from "@/components/dashboard-navbar";
 import {
   Mail,
@@ -56,6 +57,7 @@ interface UserData {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     goal: [],
@@ -77,12 +79,31 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const supabase = createClient();
 
   useEffect(() => {
-    fetchUserData();
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error || !user) {
+        // User is not authenticated, redirect to sign-in
+        router.push('/sign-in');
+        return;
+      }
+      
+      setIsAuthenticated(true);
+      fetchUserData();
+    } catch (error) {
+      console.error('Auth check error:', error);
+      router.push('/sign-in');
+    }
+  };
 
   const fetchUserData = async () => {
     try {
@@ -245,7 +266,7 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
+  if (loading || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin" />

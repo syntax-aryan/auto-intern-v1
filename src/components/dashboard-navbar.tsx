@@ -47,8 +47,8 @@ export default function DashboardNavbar() {
               <DropdownMenuItem
                 onClick={async () => {
                   await supabase.auth.signOut();
-                  router.push("/");
-                  window.location.reload();
+                  // Redirect to landing page and refresh to ensure proper state
+                  window.location.href = "/";
                 }}
                 className="text-white hover:bg-gray-800"
               >
