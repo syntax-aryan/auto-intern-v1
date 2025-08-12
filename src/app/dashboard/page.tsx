@@ -417,7 +417,7 @@ export default function Dashboard() {
                                   : "outline"
                               }
                               size="sm"
-                              className={`text-xs ${onboardingData.goal.includes(option) ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
+                              className={`text-xs ${onboardingData.goal.includes(option) ? "bg-white text-black" : "bg-white text-black border-gray-600 hover:bg-gray-200"}`}
                               onClick={() =>
                                 handleArraySelection("goal", option)
                               }
