@@ -388,7 +388,7 @@ export default function Dashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="border-gray-600 text-white hover:bg-gray-800"
+                  className="bg-white text-black border-gray-600 hover:bg-gray-200"
                   onClick={() => setIsEditingOnboarding(!isEditingOnboarding)}
                 >
                   {isEditingOnboarding ? (
@@ -455,7 +455,7 @@ export default function Dashboard() {
                                 : "outline"
                             }
                             size="sm"
-                            className={`text-xs ${onboardingData.careerPath.includes(option) ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
+                            className={`text-xs ${onboardingData.goal.includes(option) ? "bg-white text-black" : "bg-white text-black border-gray-600 hover:bg-gray-200"}`}
                             onClick={() =>
                               handleArraySelection("careerPath", option)
                             }
@@ -486,7 +486,7 @@ export default function Dashboard() {
                                   : "outline"
                               }
                               size="sm"
-                              className={`text-xs ${onboardingData.experience.includes(option) ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
+                              className={`text-xs ${onboardingData.goal.includes(option) ? "bg-white text-black" : "bg-white text-black border-gray-600 hover:bg-gray-200"}`}
                               onClick={() =>
                                 handleArraySelection("experience", option)
                               }
