@@ -518,7 +518,7 @@ export default function Dashboard() {
                           className={
                             onboardingData.dataType === "resume"
                               ? "bg-white text-black"
-                              : "border-gray-600 text-white hover:bg-gray-800"
+                              : "bg-white text-black border-gray-600 hover:bg-gray-200"
                           }
                           onClick={() =>
                             setOnboardingData({
