@@ -9,7 +9,6 @@ import {
   Target,
   FileText,
   TrendingUp,
-  Settings,
   Send,
   RefreshCw,
   Loader2,
@@ -28,13 +27,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import Link from "next/link";
 import { createClient } from "../../../supabase/client";
 
@@ -90,18 +82,15 @@ export default function Dashboard() {
   const checkAuth = async () => {
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
-      
       if (error || !user) {
-        // User is not authenticated, redirect to sign-in
-        router.push('/sign-in');
+        router.push("/sign-in");
         return;
       }
-      
       setIsAuthenticated(true);
       fetchUserData();
     } catch (error) {
-      console.error('Auth check error:', error);
-      router.push('/sign-in');
+      console.error("Auth check error:", error);
+      router.push("/sign-in");
     }
   };
 
@@ -109,7 +98,6 @@ export default function Dashboard() {
     try {
       const response = await fetch("/api/get-user-data");
       const data = await response.json();
-
       if (response.ok) {
         setUserData(data);
         if (data.user?.onboarding_data) {
@@ -128,18 +116,13 @@ export default function Dashboard() {
   const handleUpdateOnboarding = async () => {
     setIsUpdatingOnboarding(true);
     setError("");
-
     try {
       const response = await fetch("/api/update-onboarding", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(onboardingData),
       });
-
       const result = await response.json();
-
       if (response.ok) {
         setSuccess("Onboarding information updated successfully!");
         setIsEditingOnboarding(false);
@@ -159,16 +142,13 @@ export default function Dashboard() {
       setError("Please enter a target company");
       return;
     }
-
     setIsGeneratingEmail(true);
     setError("");
 
     try {
       const response = await fetch("/api/generate-email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           goal: onboardingData.goal.join(", "),
           careerPath: onboardingData.careerPath.join(", "),
@@ -181,13 +161,12 @@ export default function Dashboard() {
           dataType: onboardingData.dataType,
         }),
       });
-
       const result = await response.json();
 
       if (response.ok) {
         setGeneratedEmail(result.email);
         setEmailSubject(
-          `${onboardingData.goal.join("/")} Opportunity - [Your Name]`,
+          `${onboardingData.goal.join("/")} Opportunity - [Your Name]`
         );
       } else {
         setError(result.error || "Failed to generate email");
@@ -204,16 +183,13 @@ export default function Dashboard() {
       setError("Please fill in all email fields");
       return;
     }
-
     setIsSendingEmail(true);
     setError("");
 
     try {
       const response = await fetch("/api/send-email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: generatedEmail,
           recipientEmail,
@@ -221,7 +197,6 @@ export default function Dashboard() {
           targetCompany,
         }),
       });
-
       const result = await response.json();
 
       if (response.ok) {
@@ -230,7 +205,6 @@ export default function Dashboard() {
         setRecipientEmail("");
         setEmailSubject("");
         setTargetCompany("");
-        // Refresh user data to update email count
         fetchUserData();
         setTimeout(() => setSuccess(""), 3000);
       } else {
@@ -244,11 +218,8 @@ export default function Dashboard() {
   };
 
   const handleArraySelection = (
-    field: keyof Pick<
-      OnboardingData,
-      "goal" | "careerPath" | "experience" | "companies"
-    >,
-    value: string,
+    field: keyof Pick<OnboardingData, "goal" | "careerPath" | "experience" | "companies">,
+    value: string
   ) => {
     const currentArray = onboardingData[field];
     const isSelected = currentArray.includes(value);
@@ -363,9 +334,7 @@ export default function Dashboard() {
               <CardContent>
                 <div className="text-2xl font-bold text-white">
                   {userData?.emailLimit
-                    ? Math.round(
-                        (userData.emailsUsed / userData.emailLimit) * 100,
-                      )
+                    ? Math.round((userData.emailsUsed / userData.emailLimit) * 100)
                     : 0}
                   %
                 </div>
@@ -391,161 +360,101 @@ export default function Dashboard() {
                   className="border-gray-600 text-white hover:bg-gray-800"
                   onClick={() => setIsEditingOnboarding(!isEditingOnboarding)}
                 >
-                  {isEditingOnboarding ? (
-                    <X className="w-4 h-4" />
-                  ) : (
-                    <Edit className="w-4 h-4" />
-                  )}
+                  {isEditingOnboarding ? <X className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
                 </Button>
               </CardHeader>
+
               <CardContent className="space-y-4">
                 {isEditingOnboarding ? (
                   <div className="space-y-4">
                     {/* Goals */}
                     <div>
-                      <Label className="text-white mb-2 block">
-                        Goals (up to 3)
-                      </Label>
+                      <Label className="text-white mb-2 block">Goals (up to 3)</Label>
                       <div className="grid grid-cols-2 gap-2">
-                        {["Internships", "Jobs", "Research", "Referrals"].map(
-                          (option) => (
+                        {["Internships", "Jobs", "Research", "Referrals"].map((option) => {
+                          const selected = onboardingData.goal.includes(option);
+                          return (
                             <Button
                               key={option}
-                              variant={
-                                onboardingData.goal.includes(option)
-                                  ? "default"
-                                  : "outline"
-                              }
+                              variant="outline"
                               size="sm"
-                              className={`text-xs ${onboardingData.goal.includes(option) ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
-                              onClick={() =>
-                                handleArraySelection("goal", option)
-                              }
-                              disabled={
-                                !onboardingData.goal.includes(option) &&
-                                onboardingData.goal.length >= 3
-                              }
+                              className="text-xs bg-white text-black border-gray-600 hover:bg-gray-200"
+                              onClick={() => handleArraySelection("goal", option)}
+                              disabled={!selected && onboardingData.goal.length >= 3}
                             >
                               {option}
                             </Button>
-                          ),
-                        )}
+                          );
+                        })}
                       </div>
                     </div>
 
                     {/* Career Path */}
                     <div>
-                      <Label className="text-white mb-2 block">
-                        Career Path (up to 3)
-                      </Label>
+                      <Label className="text-white mb-2 block">Career Path (up to 3)</Label>
                       <div className="grid grid-cols-2 gap-2">
-                        {[
-                          "Technology",
-                          "Finance",
-                          "Law",
-                          "Healthcare",
-                          "Marketing",
-                          "Consulting",
-                        ].map((option) => (
-                          <Button
-                            key={option}
-                            variant={
-                              onboardingData.careerPath.includes(option)
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            className={`text-xs ${onboardingData.careerPath.includes(option) ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
-                            onClick={() =>
-                              handleArraySelection("careerPath", option)
-                            }
-                            disabled={
-                              !onboardingData.careerPath.includes(option) &&
-                              onboardingData.careerPath.length >= 3
-                            }
-                          >
-                            {option}
-                          </Button>
-                        ))}
+                        {["Technology", "Finance", "Law", "Healthcare", "Marketing", "Consulting"].map(
+                          (option) => {
+                            const selected = onboardingData.careerPath.includes(option);
+                            return (
+                              <Button
+                                key={option}
+                                variant="outline"
+                                size="sm"
+                                className="text-xs bg-white text-black border-gray-600 hover:bg-gray-200"
+                                onClick={() => handleArraySelection("careerPath", option)}
+                                disabled={!selected && onboardingData.careerPath.length >= 3}
+                              >
+                                {option}
+                              </Button>
+                            );
+                          }
+                        )}
                       </div>
                     </div>
 
                     {/* Experience */}
                     <div>
-                      <Label className="text-white mb-2 block">
-                        Experience (up to 3)
-                      </Label>
+                      <Label className="text-white mb-2 block">Experience (up to 3)</Label>
                       <div className="grid grid-cols-3 gap-2">
-                        {["Beginner", "Intermediate", "Expert"].map(
-                          (option) => (
+                        {["Beginner", "Intermediate", "Expert"].map((option) => {
+                          const selected = onboardingData.experience.includes(option);
+                          return (
                             <Button
                               key={option}
-                              variant={
-                                onboardingData.experience.includes(option)
-                                  ? "default"
-                                  : "outline"
-                              }
+                              variant="outline"
                               size="sm"
-                              className={`text-xs ${onboardingData.experience.includes(option) ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-800"}`}
-                              onClick={() =>
-                                handleArraySelection("experience", option)
-                              }
-                              disabled={
-                                !onboardingData.experience.includes(option) &&
-                                onboardingData.experience.length >= 3
-                              }
+                              className="text-xs bg-white text-black border-gray-600 hover:bg-gray-200"
+                              onClick={() => handleArraySelection("experience", option)}
+                              disabled={!selected && onboardingData.experience.length >= 3}
                             >
                               {option}
                             </Button>
-                          ),
-                        )}
+                          );
+                        })}
                       </div>
                     </div>
 
                     {/* Data Type */}
                     <div>
-                      <Label className="text-white mb-2 block">
-                        Profile Data
-                      </Label>
+                      <Label className="text-white mb-2 block">Profile Data</Label>
                       <div className="flex gap-2 mb-2">
                         <Button
-                          variant={
-                            onboardingData.dataType === "resume"
-                              ? "default"
-                              : "outline"
-                          }
+                          variant="outline"
                           size="sm"
-                          className={
-                            onboardingData.dataType === "resume"
-                              ? "bg-white text-black"
-                              : "border-gray-600 text-white hover:bg-gray-800"
-                          }
+                          className="bg-white text-black border-gray-600 hover:bg-gray-200"
                           onClick={() =>
-                            setOnboardingData({
-                              ...onboardingData,
-                              dataType: "resume",
-                            })
+                            setOnboardingData({ ...onboardingData, dataType: "resume" })
                           }
                         >
                           Resume
                         </Button>
                         <Button
-                          variant={
-                            onboardingData.dataType === "linkedin"
-                              ? "default"
-                              : "outline"
-                          }
+                          variant="outline"
                           size="sm"
-                          className={
-                            onboardingData.dataType === "linkedin"
-                              ? "bg-white text-black"
-                              : "border-gray-600 text-white hover:bg-gray-800"
-                          }
+                          className="bg-white text-black border-gray-600 hover:bg-gray-200"
                           onClick={() =>
-                            setOnboardingData({
-                              ...onboardingData,
-                              dataType: "linkedin",
-                            })
+                            setOnboardingData({ ...onboardingData, dataType: "linkedin" })
                           }
                         >
                           LinkedIn
@@ -558,10 +467,7 @@ export default function Dashboard() {
                           placeholder="Paste your resume content here..."
                           value={onboardingData.resumeData}
                           onChange={(e) =>
-                            setOnboardingData({
-                              ...onboardingData,
-                              resumeData: e.target.value,
-                            })
+                            setOnboardingData({ ...onboardingData, resumeData: e.target.value })
                           }
                         />
                       )}
@@ -572,10 +478,7 @@ export default function Dashboard() {
                           placeholder="https://linkedin.com/in/yourprofile"
                           value={onboardingData.linkedinUrl}
                           onChange={(e) =>
-                            setOnboardingData({
-                              ...onboardingData,
-                              linkedinUrl: e.target.value,
-                            })
+                            setOnboardingData({ ...onboardingData, linkedinUrl: e.target.value })
                           }
                         />
                       )}
@@ -603,9 +506,7 @@ export default function Dashboard() {
                   <div className="space-y-3">
                     <div>
                       <p className="text-gray-400 text-sm">Goals:</p>
-                      <p className="text-white">
-                        {onboardingData.goal.join(", ") || "Not set"}
-                      </p>
+                      <p className="text-white">{onboardingData.goal.join(", ") || "Not set"}</p>
                     </div>
                     <div>
                       <p className="text-gray-400 text-sm">Career Path:</p>
@@ -715,8 +616,7 @@ export default function Dashboard() {
                       ) : (
                         <>
                           <Send className="mr-2 w-4 h-4" />
-                          Send Email ({userData?.emailsRemaining || 0}{" "}
-                          remaining)
+                          Send Email ({userData?.emailsRemaining || 0} remaining)
                         </>
                       )}
                     </Button>
