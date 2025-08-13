@@ -9,12 +9,12 @@ export async function POST(request: NextRequest) {
     const generateEmail = () => {
       const templates = {
         Internships: {
-          subject: `${careerPath} Internship Application`,
-          greeting: "Dear Hiring Manager,",
-          intro: `I am writing to express my strong interest in ${careerPath.toLowerCase()} internship opportunities at your company.`,
-          body: `As a ${experience.toLowerCase()} student with a passion for ${careerPath.toLowerCase()}, I am particularly drawn to ${companies === "FAANG" ? "innovative technology companies" : companies.toLowerCase()} that are shaping the future of the industry.`,
+          subject: `Internship Inquiry - Software Engineering`,
+          greeting: "Dear Google Recruiting Team,",
+          intro: `I am writing to express my enthusiastic interest in a software engineering internship at Google. As a passionate technologist with a strong proficiency in Python, I am eager to contribute to a team that is building innovative and impactful products.`,
+          body: `My experience in Python, coupled with my passion for technology, has prepared me to tackle challenging problems and quickly learn new skills. I am particularly excited about Google's work in [mention a specific area of interest, e.g., machine learning, cloud computing] and would be thrilled to be a part of such a dynamic and forward-thinking environment.`,
           closing:
-            "I would welcome the opportunity to discuss how my skills and enthusiasm can contribute to your team. Thank you for your consideration.",
+            "I am confident that my skills and dedication would make me a valuable asset to your team. I have attached my resume for your review and would welcome the opportunity to discuss my application further. Thank you for your time and consideration.",
         },
         Jobs: {
           subject: `${careerPath} Position Application`,

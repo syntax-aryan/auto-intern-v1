@@ -41,9 +41,9 @@ import { createClient } from "../../../supabase/client";
 interface OnboardingData {
   goal: string[];
   careerPath: string[];
-  experience: string[];
+  experience: string;
   companies: string[];
-  resumeData: string;
+  resumeData: string | File | null;
   linkedinUrl: string;
   dataType: "resume" | "linkedin" | "";
 }
@@ -62,9 +62,9 @@ export default function Dashboard() {
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     goal: [],
     careerPath: [],
-    experience: [],
+    experience: "",
     companies: [],
-    resumeData: "",
+    resumeData: null,
     linkedinUrl: "",
     dataType: "",
   });
@@ -130,12 +130,24 @@ export default function Dashboard() {
     setError("");
 
     try {
+      let resumeText = "";
+      if (onboardingData.dataType === 'resume' && onboardingData.resumeData instanceof File) {
+        resumeText = await (onboardingData.resumeData as File).text();
+      } else {
+        resumeText = onboardingData.resumeData as string;
+      }
+
+      const dataToSend = {
+        ...onboardingData,
+        resumeData: resumeText
+      }
+
       const response = await fetch("/api/update-onboarding", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(onboardingData),
+        body: JSON.stringify(dataToSend),
       });
 
       const result = await response.json();
@@ -164,6 +176,13 @@ export default function Dashboard() {
     setError("");
 
     try {
+      let resumeText = "";
+      if (onboardingData.dataType === "resume" && onboardingData.resumeData instanceof File) {
+        resumeText = await (onboardingData.resumeData as File).text();
+      } else if (onboardingData.dataType === "resume") {
+        resumeText = onboardingData.resumeData as string;
+      }
+
       const response = await fetch("/api/generate-email", {
         method: "POST",
         headers: {
@@ -172,11 +191,11 @@ export default function Dashboard() {
         body: JSON.stringify({
           goal: onboardingData.goal.join(", "),
           careerPath: onboardingData.careerPath.join(", "),
-          experience: onboardingData.experience.join(", "),
+          experience: onboardingData.experience,
           companies: targetCompany,
           resumeData:
             onboardingData.dataType === "resume"
-              ? onboardingData.resumeData
+              ? resumeText
               : onboardingData.linkedinUrl,
           dataType: onboardingData.dataType,
         }),
@@ -250,7 +269,12 @@ export default function Dashboard() {
     >,
     value: string,
   ) => {
-    const currentArray = onboardingData[field];
+    if (field === 'experience') {
+      setOnboardingData({ ...onboardingData, experience: value });
+      return;
+    }
+
+    const currentArray = onboardingData[field] as string[];
     const isSelected = currentArray.includes(value);
 
     if (isSelected) {
@@ -258,11 +282,13 @@ export default function Dashboard() {
         ...onboardingData,
         [field]: currentArray.filter((item) => item !== value),
       });
-    } else if (currentArray.length < 3) {
-      setOnboardingData({
-        ...onboardingData,
-        [field]: [...currentArray, value],
-      });
+    } else {
+      if (field === 'goal' || field === 'careerPath' || currentArray.length < 3) {
+        setOnboardingData({
+          ...onboardingData,
+          [field]: [...currentArray, value],
+        });
+      }
     }
   };
 
@@ -377,7 +403,7 @@ export default function Dashboard() {
           {/* Main Content Grid */}
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Onboarding Information */}
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-gray-900 border-gray-800 min-h-[500px]">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-white">Your Profile</CardTitle>
@@ -404,7 +430,7 @@ export default function Dashboard() {
                     {/* Goals */}
                     <div>
                       <Label className="text-white mb-2 block">
-                        Goals (up to 3)
+                        Goals
                       </Label>
                       <div className="grid grid-cols-2 gap-2">
                         {["Internships", "Jobs", "Research", "Referrals"].map(
@@ -417,13 +443,9 @@ export default function Dashboard() {
                                   : "outline"
                               }
                               size="sm"
-                              className={`text-xs ${onboardingData.goal.includes(option) ? "bg-white text-black" : "bg-white text-black border-gray-600 hover:bg-gray-200"}`}
+                              className={`text-xs ${onboardingData.goal.includes(option) ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-700"}`}
                               onClick={() =>
                                 handleArraySelection("goal", option)
-                              }
-                              disabled={
-                                !onboardingData.goal.includes(option) &&
-                                onboardingData.goal.length >= 3
                               }
                             >
                               {option}
@@ -436,7 +458,7 @@ export default function Dashboard() {
                     {/* Career Path */}
                     <div>
                       <Label className="text-white mb-2 block">
-                        Career Path (up to 3)
+                        Career Path
                       </Label>
                       <div className="grid grid-cols-2 gap-2">
                         {[
@@ -455,13 +477,9 @@ export default function Dashboard() {
                                 : "outline"
                             }
                             size="sm"
-                            className={`text-xs ${onboardingData.goal.includes(option) ? "bg-white text-black" : "bg-white text-black border-gray-600 hover:bg-gray-200"}`}
+                            className={`text-xs ${onboardingData.careerPath.includes(option) ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-700"}`}
                             onClick={() =>
                               handleArraySelection("careerPath", option)
-                            }
-                            disabled={
-                              !onboardingData.careerPath.includes(option) &&
-                              onboardingData.careerPath.length >= 3
                             }
                           >
                             {option}
@@ -473,7 +491,7 @@ export default function Dashboard() {
                     {/* Experience */}
                     <div>
                       <Label className="text-white mb-2 block">
-                        Experience (up to 3)
+                        Experience
                       </Label>
                       <div className="grid grid-cols-3 gap-2">
                         {["Beginner", "Intermediate", "Expert"].map(
@@ -481,18 +499,14 @@ export default function Dashboard() {
                             <Button
                               key={option}
                               variant={
-                                onboardingData.experience.includes(option)
+                                onboardingData.experience === option
                                   ? "default"
                                   : "outline"
                               }
                               size="sm"
-                              className={`text-xs ${onboardingData.goal.includes(option) ? "bg-white text-black" : "bg-white text-black border-gray-600 hover:bg-gray-200"}`}
+                              className={`text-xs ${onboardingData.experience === option ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-700"}`}
                               onClick={() =>
                                 handleArraySelection("experience", option)
-                              }
-                              disabled={
-                                !onboardingData.experience.includes(option) &&
-                                onboardingData.experience.length >= 3
                               }
                             >
                               {option}
@@ -518,7 +532,7 @@ export default function Dashboard() {
                           className={
                             onboardingData.dataType === "resume"
                               ? "bg-white text-black"
-                              : "bg-white text-black border-gray-600 hover:bg-gray-200"
+                              : "border-gray-600 text-white hover:bg-gray-700"
                           }
                           onClick={() =>
                             setOnboardingData({
@@ -539,7 +553,7 @@ export default function Dashboard() {
                           className={
                             onboardingData.dataType === "linkedin"
                               ? "bg-white text-black"
-                              : "border-gray-600 text-white hover:bg-gray-800"
+                              : "border-gray-600 text-white hover:bg-gray-700"
                           }
                           onClick={() =>
                             setOnboardingData({
@@ -553,17 +567,25 @@ export default function Dashboard() {
                       </div>
 
                       {onboardingData.dataType === "resume" && (
-                        <Textarea
-                          className="bg-gray-800 border-gray-700 text-white"
-                          placeholder="Paste your resume content here..."
-                          value={onboardingData.resumeData}
-                          onChange={(e) =>
-                            setOnboardingData({
-                              ...onboardingData,
-                              resumeData: e.target.value,
-                            })
-                          }
-                        />
+                        <div>
+                          <Input
+                            type="file"
+                            className="bg-gray-800 border-gray-700 text-white"
+                            accept=".pdf,.doc,.docx,.txt"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] || null;
+                              setOnboardingData({
+                                ...onboardingData,
+                                resumeData: file,
+                              });
+                            }}
+                          />
+                          {onboardingData.resumeData instanceof File && (
+                            <p className="text-sm text-gray-400 mt-2">
+                              Selected file: {(onboardingData.resumeData as File).name}
+                            </p>
+                          )}
+                        </div>
                       )}
 
                       {onboardingData.dataType === "linkedin" && (
@@ -616,7 +638,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-gray-400 text-sm">Experience:</p>
                       <p className="text-white">
-                        {onboardingData.experience.join(", ") || "Not set"}
+                        {onboardingData.experience || "Not set"}
                       </p>
                     </div>
                     <div>

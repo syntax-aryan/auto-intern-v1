@@ -110,18 +110,5 @@ function generateFallbackEmail(
   company: string,
   position: string,
 ): string {
-  // Extract some basic info from content for personalization
-  const hasExperience =
-    content.toLowerCase().includes("experience") ||
-    content.toLowerCase().includes("worked");
-  const hasEducation =
-    content.toLowerCase().includes("university") ||
-    content.toLowerCase().includes("college") ||
-    content.toLowerCase().includes("degree");
-  const hasTech =
-    content.toLowerCase().includes("software") ||
-    content.toLowerCase().includes("programming") ||
-    content.toLowerCase().includes("development");
-
-  return `Dear Hiring Manager,\n\nI hope this email finds you well. I am writing to express my strong interest in the ${position} position at ${company}.\n\n${hasExperience ? "With my relevant professional experience" : "As an enthusiastic candidate"} and ${hasEducation ? "educational background" : "strong foundation"}, I am excited about the opportunity to contribute to ${company}'s innovative work. ${hasTech ? "My technical skills and passion for technology" : "My dedication and eagerness to learn"} align well with the requirements of this role.\n\n${company} has always impressed me with its commitment to excellence and innovation in the industry. I would welcome the opportunity to discuss how my background and enthusiasm can contribute to your team's continued success.\n\nI have attached my resume for your review and would be grateful for the opportunity to discuss this position further. Thank you for considering my application.\n\nBest regards,\n[Your Name]`;
+  return `Dear Hiring Manager,\n\nI am writing to express my strong interest in the ${position} position at ${company}, which I discovered through [Platform where you saw the opening, e.g., LinkedIn, company careers page].\n\nWith a background in [mention your key skill or area of expertise, e.g., software development, data analysis], I have developed a strong foundation in [mention a specific skill, e.g., Python, JavaScript]. I am particularly drawn to ${company}'s work in [mention a specific project or area of work at the company] and am confident that my skills would be a valuable asset to your team.\n\nI am eager to learn more about this opportunity and discuss how my experience can contribute to your company's success. I have attached my resume for your review and look forward to hearing from you soon.\n\nThank you for your time and consideration.\n\nBest regards,\n[Your Name]`;
 }

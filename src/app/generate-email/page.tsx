@@ -22,7 +22,7 @@ import { SubscriptionCheck } from "@/components/subscription-check";
 
 interface EmailData {
   inputType: "resume" | "linkedin" | "";
-  inputContent: string;
+  inputContent: string | File | null;
   targetCompany: string;
   position: string;
   generatedEmail: string;
@@ -31,7 +31,7 @@ interface EmailData {
 export default function GenerateEmailPage() {
   const [data, setData] = useState<EmailData>({
     inputType: "",
-    inputContent: "",
+    inputContent: null,
     targetCompany: "",
     position: "",
     generatedEmail: "",
@@ -51,6 +51,13 @@ export default function GenerateEmailPage() {
     setError("");
 
     try {
+      let resumeText = "";
+      if (data.inputType === "resume" && data.inputContent instanceof File) {
+        resumeText = await (data.inputContent as File).text();
+      } else {
+        resumeText = data.inputContent as string;
+      }
+
       const response = await fetch("/api/generate-smart-email", {
         method: "POST",
         headers: {
@@ -58,7 +65,7 @@ export default function GenerateEmailPage() {
         },
         body: JSON.stringify({
           inputType: data.inputType,
-          inputContent: data.inputContent,
+          inputContent: resumeText,
           targetCompany: data.targetCompany,
           position: data.position,
         }),
@@ -153,21 +160,33 @@ export default function GenerateEmailPage() {
                 </div>
 
                 {/* Input Content */}
-                {data.inputType && (
+                {data.inputType === "resume" && (
                   <div className="space-y-2">
-                    <Label className="text-white">
-                      {data.inputType === "resume"
-                        ? "Resume Content"
-                        : "LinkedIn Profile URL"}
-                    </Label>
-                    <Textarea
-                      className="bg-gray-800 border-gray-700 text-white min-h-[150px]"
-                      placeholder={
-                        data.inputType === "resume"
-                          ? "Paste your resume content here..."
-                          : "https://linkedin.com/in/yourprofile"
-                      }
-                      value={data.inputContent}
+                    <Label className="text-white">Resume File</Label>
+                    <Input
+                      type="file"
+                      className="bg-gray-800 border-gray-700 text-white"
+                      accept=".pdf,.doc,.docx,.txt"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setData({ ...data, inputContent: file });
+                      }}
+                    />
+                    {data.inputContent instanceof File && (
+                      <p className="text-sm text-gray-400">
+                        Selected file: {(data.inputContent as File).name}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {data.inputType === "linkedin" && (
+                  <div className="space-y-2">
+                    <Label className="text-white">LinkedIn Profile URL</Label>
+                    <Input
+                      className="bg-gray-800 border-gray-700 text-white"
+                      placeholder="https://linkedin.com/in/yourprofile"
+                      value={typeof data.inputContent === 'string' ? data.inputContent : ''}
                       onChange={(e) =>
                         setData({ ...data, inputContent: e.target.value })
                       }

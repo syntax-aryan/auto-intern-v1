@@ -30,7 +30,7 @@ import { createClient } from "../../../supabase/client";
 interface OnboardingData {
   goal: string[];
   careerPath: string[];
-  experience: string[];
+  experience: string;
   companies: string[];
   resumeFile: File | null;
   linkedinUrl: string;
@@ -42,7 +42,7 @@ export default function OnboardingPage() {
   const [data, setData] = useState<OnboardingData>({
     goal: [],
     careerPath: [],
-    experience: [],
+    experience: "",
     companies: [],
     resumeFile: null,
     linkedinUrl: "",
@@ -74,7 +74,7 @@ export default function OnboardingPage() {
       const requestData = {
         goal: data.goal.join(", "),
         careerPath: data.careerPath.join(", "),
-        experience: data.experience.join(", "),
+        experience: data.experience,
         companies: data.companies.join(", "),
         resumeData: resumeText,
         dataType: data.dataType,
@@ -115,25 +115,23 @@ export default function OnboardingPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-sm text-gray-400 mb-2">
-                Select up to 3 options
+                Select as many as you like
               </div>
               {["Internships", "Jobs", "Research", "Referrals"].map(
                 (option) => {
                   const isSelected = data.goal.includes(option);
-                  const canSelect = data.goal.length < 3 || isSelected;
                   return (
                     <Button
                       key={option}
                       variant={isSelected ? "default" : "outline"}
-                      className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
-                      disabled={!canSelect}
+                      className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-700"}`}
                       onClick={() => {
                         if (isSelected) {
                           setData({
                             ...data,
                             goal: data.goal.filter((g) => g !== option),
                           });
-                        } else if (data.goal.length < 3) {
+                        } else {
                           setData({ ...data, goal: [...data.goal, option] });
                         }
                       }}
@@ -144,9 +142,6 @@ export default function OnboardingPage() {
                   );
                 },
               )}
-              <div className="text-xs text-gray-500">
-                Selected: {data.goal.length}/3
-              </div>
             </CardContent>
           </Card>
         );
@@ -161,7 +156,7 @@ export default function OnboardingPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-sm text-gray-400 mb-2">
-                Select up to 3 career paths
+                Select as many as you like
               </div>
               {[
                 "Technology",
@@ -173,13 +168,11 @@ export default function OnboardingPage() {
                 "Other",
               ].map((option) => {
                 const isSelected = data.careerPath.includes(option);
-                const canSelect = data.careerPath.length < 3 || isSelected;
                 return (
                   <Button
                     key={option}
                     variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
-                    disabled={!canSelect}
+                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-700"}`}
                     onClick={() => {
                       if (isSelected) {
                         setData({
@@ -188,7 +181,7 @@ export default function OnboardingPage() {
                             (c) => c !== option,
                           ),
                         });
-                      } else if (data.careerPath.length < 3) {
+                      } else {
                         setData({
                           ...data,
                           careerPath: [...data.careerPath, option],
@@ -201,9 +194,6 @@ export default function OnboardingPage() {
                   </Button>
                 );
               })}
-              <div className="text-xs text-gray-500">
-                Selected: {data.careerPath.length}/3
-              </div>
             </CardContent>
           </Card>
         );
@@ -218,31 +208,17 @@ export default function OnboardingPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-sm text-gray-400 mb-2">
-                Select up to 3 experience levels
+                Select your experience level
               </div>
               {["Beginner", "Intermediate", "Expert"].map((option) => {
-                const isSelected = data.experience.includes(option);
-                const canSelect = data.experience.length < 3 || isSelected;
+                const isSelected = data.experience === option;
                 return (
                   <Button
                     key={option}
                     variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
-                    disabled={!canSelect}
+                    className={`w-full justify-start ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-700"}`}
                     onClick={() => {
-                      if (isSelected) {
-                        setData({
-                          ...data,
-                          experience: data.experience.filter(
-                            (e) => e !== option,
-                          ),
-                        });
-                      } else if (data.experience.length < 3) {
-                        setData({
-                          ...data,
-                          experience: [...data.experience, option],
-                        });
-                      }
+                      setData({ ...data, experience: option });
                     }}
                   >
                     {option}
@@ -250,9 +226,6 @@ export default function OnboardingPage() {
                   </Button>
                 );
               })}
-              <div className="text-xs text-gray-500">
-                Selected: {data.experience.length}/3
-              </div>
             </CardContent>
           </Card>
         );
@@ -286,7 +259,7 @@ export default function OnboardingPage() {
                   <Button
                     key={value}
                     variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start text-left ${isSelected ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`w-full justify-start text-left ${isSelected ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-700"} ${!canSelect ? "opacity-50 cursor-not-allowed" : ""}`}
                     disabled={!canSelect}
                     onClick={() => {
                       if (isSelected) {
@@ -326,7 +299,7 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <Button
                   variant={data.dataType === "resume" ? "default" : "outline"}
-                  className={`w-full justify-start ${data.dataType === "resume" ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"}`}
+                  className={`w-full justify-start ${data.dataType === "resume" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-700"}`}
                   onClick={() => setData({ ...data, dataType: "resume" })}
                 >
                   <FileText className="mr-2 w-4 h-4" />
@@ -334,7 +307,7 @@ export default function OnboardingPage() {
                 </Button>
                 <Button
                   variant={data.dataType === "linkedin" ? "default" : "outline"}
-                  className={`w-full justify-start ${data.dataType === "linkedin" ? "bg-white text-black" : "border-gray-600 text-black hover:bg-gray-800"}`}
+                  className={`w-full justify-start ${data.dataType === "linkedin" ? "bg-white text-black" : "border-gray-600 text-white hover:bg-gray-700"}`}
                   onClick={() => setData({ ...data, dataType: "linkedin" })}
                 >
                   <Linkedin className="mr-2 w-4 h-4" />
@@ -455,7 +428,7 @@ export default function OnboardingPage() {
             onClick={handleBack}
             disabled={step === 1}
             variant="outline"
-             className="border-gray-600 text-black hover:bg-gray-800"
+             className="border-gray-600 text-white hover:bg-gray-700"
           >
             <ArrowLeft className="mr-2 w-4 h-4" />
             Back
@@ -470,7 +443,7 @@ export default function OnboardingPage() {
                   case 2:
                     return data.careerPath.length === 0;
                   case 3:
-                    return data.experience.length === 0;
+                    return data.experience === "";
                   case 4:
                     return data.companies.length === 0;
                   default:
