@@ -42,3 +42,7 @@ yarn-error.log*
 # Tempo
 **/tempobook/dynamic/
 **/tempobook/storyboards/
+
+# editor and local tooling
+.vscode/
+supabase/.temp/
