@@ -5,8 +5,31 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Aurora from "@/components/Aurora";
 import { createClient } from "@/../supabase/server";
+import { encodedRedirect } from "@/utils/utils";
 
-export default async function Home() {
+interface HomeProps {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const error = searchParams?.error as string | undefined;
+  const errorCode = searchParams?.error_code as string | undefined;
+  const errorDescription = searchParams?.error_description as string | undefined;
+
+  // Handle Supabase email verification errors (expired/invalid links, access denied)
+  if (
+    error === "access_denied" ||
+    errorCode === "otp_expired" ||
+    errorDescription?.toLowerCase().includes("invalid") ||
+    errorDescription?.toLowerCase().includes("expired")
+  ) {
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "Email verification link is invalid or has expired. Please request a new verification email or use a different email address.",
+    );
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
