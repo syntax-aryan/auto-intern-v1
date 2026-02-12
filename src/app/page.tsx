@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Aurora from "@/components/Aurora";
 import { createClient } from "@/../supabase/server";
 import { encodedRedirect } from "@/utils/utils";
+import { VerificationBanner } from "@/components/verification-banner";
 
 interface HomeProps {
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -15,6 +16,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const error = searchParams?.error as string | undefined;
   const errorCode = searchParams?.error_code as string | undefined;
   const errorDescription = searchParams?.error_description as string | undefined;
+   const successMessage = searchParams?.success as string | undefined;
 
   // Handle Supabase email verification errors (expired/invalid links, access denied)
   if (
@@ -37,6 +39,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const getStartedLink = user ? "/dashboard" : "/sign-up";
   return (
     <div className="min-h-screen bg-black text-white">
+      {successMessage && <VerificationBanner message={successMessage} />}
       <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px]">
         <Aurora
           colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}

@@ -12,6 +12,8 @@ export async function GET(request: Request) {
   }
 
   // URL to redirect to after sign in process completes
-  const redirectTo = redirect_to || "/dashboard";
+  // For email verification / magic links with no explicit redirect,
+  // send users to a friendly success experience.
+  const redirectTo = redirect_to || "/success";
   return NextResponse.redirect(new URL(redirectTo, requestUrl.origin));
 } 
