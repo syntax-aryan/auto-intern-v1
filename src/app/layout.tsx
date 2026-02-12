@@ -8,9 +8,15 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Auto Intern - Land Your Dream Internship",
+  title: "Auto Intern | AI Cold Email for Internships & Jobs",
   description:
-    "Automate your cold email outreach to recruiters with AI-powered personalization",
+    "Auto Intern helps you land internships and jobs with AI-personalized cold emails to recruiters. Automate outreach, track responses, and get more interviews at top companies.",
+  openGraph: {
+    title: "Auto Intern | AI Cold Email for Internships & Jobs",
+    description:
+      "Auto Intern helps you land internships and jobs with AI-personalized cold emails to recruiters. Automate outreach, track responses, and get more interviews at top companies.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
